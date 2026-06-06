@@ -22,7 +22,7 @@ var (
 func New() *echo.Echo {
 
 	e := echo.New()
-	e.POST("/auth/web/google", authH.GoogleSignInWeb)
+	e.POST("/api/web/google", authH.GoogleSignInWeb)
 
 	auth := e.Group("/api", middlewares.ApiKeyMiddleware)
 	{
