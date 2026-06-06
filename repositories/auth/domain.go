@@ -15,6 +15,9 @@ type DomainRepository interface {
 	UpdateUser(user *entity.AccessDoor) error
 	SigninByPhoneNumber(req dto.SigninRequest) (*entity.AccessDoor, error)
 	SaveUser(user *entity.AccessDoor) error
+	Create(user *entity.AccessDoor) error
+	UpdateWhatsapp(userID string, phone string) error
+	FindByEncryptedEmail(encryptedEmail string) (*entity.AccessDoor, error)
 }
 
 type authRepository struct {

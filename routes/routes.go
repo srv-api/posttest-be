@@ -22,8 +22,9 @@ var (
 func New() *echo.Echo {
 
 	e := echo.New()
+	e.POST("/auth/web/google", authH.GoogleSignInWeb)
 
-	auth := e.Group("/auth", middlewares.ApiKeyMiddleware)
+	auth := e.Group("/api", middlewares.ApiKeyMiddleware)
 	{
 		auth.POST("/signin", authH.Signin)
 	}

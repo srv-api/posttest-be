@@ -10,6 +10,7 @@ import (
 type AuthService interface {
 	Signin(req dto.SigninRequest) (*dto.SigninResponse, error)
 	SigninByPhoneNumber(req dto.SigninRequest) (*dto.SigninResponse, error)
+	SignInWithGoogleWeb(req dto.GoogleSignInWebRequest) (*dto.AuthResponse, error)
 }
 
 type authService struct {
