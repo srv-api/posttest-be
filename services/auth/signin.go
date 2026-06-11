@@ -8,7 +8,6 @@ import (
 	"time"
 
 	res "github.com/srv-api/util/s/response"
-	"golang.org/toolchain/src/math/rand"
 
 	util "github.com/srv-api/util/s"
 	"gorm.io/gorm"
@@ -203,17 +202,4 @@ func FormatWhatsappNumber(phone string) string {
 	}
 
 	return phone
-}
-
-func GenerateRandomNumeric(length int) string {
-	const chars = "0123456789"
-
-	var result strings.Builder
-	rand.Seed(time.Now().UnixNano())
-
-	for i := 0; i < length; i++ {
-		result.WriteRune(rune(chars[rand.Intn(len(chars))]))
-	}
-
-	return result.String()
 }

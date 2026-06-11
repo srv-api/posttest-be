@@ -18,6 +18,8 @@ type DomainRepository interface {
 	Create(user *entity.AccessDoor) error
 	UpdateWhatsapp(userID string, phone string) error
 	FindByEncryptedEmail(encryptedEmail string) (*entity.AccessDoor, error)
+	RefreshToken(req dto.RefreshTokenRequest) (*entity.AccessDoor, error)
+	Signup(req dto.SignupRequest) (dto.SignupResponse, error)
 }
 
 type authRepository struct {

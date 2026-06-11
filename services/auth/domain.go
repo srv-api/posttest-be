@@ -11,6 +11,8 @@ type AuthService interface {
 	Signin(req dto.SigninRequest) (*dto.SigninResponse, error)
 	SigninByPhoneNumber(req dto.SigninRequest) (*dto.SigninResponse, error)
 	SignInWithGoogleWeb(req dto.GoogleSignInWebRequest) (*dto.AuthResponse, error)
+	Signup(req dto.SignupRequest) (dto.SignupResponse, error)
+	RefreshAccessToken(req dto.RefreshTokenRequest) (string, error)
 }
 
 type authService struct {
