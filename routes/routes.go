@@ -59,6 +59,7 @@ func New() *echo.Echo {
 	{
 		auth.POST("/signin", authH.Signin)
 		auth.POST("/refresh", authH.RefreshToken)
+		auth.POST("/signup", authH.Signup)
 
 	}
 
