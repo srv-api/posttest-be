@@ -38,23 +38,23 @@ var (
 func New() *echo.Echo {
 
 	e := echo.New()
-	e.POST("/api/web/google", authH.GoogleSignInWeb)
-	e.GET("/multiple/picture/*", multipleH.GetPicture)
-	e.GET("/multiselect/picture/*", multiselectH.GetPicture)
+	e.POST("/d/web/google", authH.GoogleSignInWeb)
+	e.GET("/picture/*", multipleH.GetPicture)
+	e.GET("/picture/*", multiselectH.GetPicture)
 
-	multiple := e.Group("/multiple", middlewares.AuthorizeJWT(JWT))
+	multiple := e.Group("/d", middlewares.AuthorizeJWT(JWT))
 	{
-		multiple.POST("/create", multipleH.Create)
-		multiple.GET("/get", multipleH.Get)
+		multiple.POST("/create/multiple", multipleH.Create)
+		multiple.GET("/get/multiple", multipleH.Get)
 	}
 
-	multiselect := e.Group("/multiselect", middlewares.AuthorizeJWT(JWT))
+	multiselect := e.Group("/d", middlewares.AuthorizeJWT(JWT))
 	{
-		multiselect.POST("/create", multiselectH.Create)
-		multiselect.GET("/get", multiselectH.Get)
+		multiselect.POST("/create/multiselect", multiselectH.Create)
+		multiselect.GET("/get/multiselect", multiselectH.Get)
 	}
 
-	auth := e.Group("/api", middlewares.ApiKeyMiddleware)
+	auth := e.Group("/d", middlewares.ApiKeyMiddleware)
 	{
 		auth.POST("/signin", authH.Signin)
 	}
