@@ -9,6 +9,9 @@ import (
 type DomainHandler interface {
 	Signin(c echo.Context) error //masuk
 	GoogleSignInWeb(c echo.Context) error
+	Signout(c echo.Context) error
+	RefreshToken(c echo.Context) error
+	Signup(c echo.Context) error
 }
 
 type domainHandler struct {

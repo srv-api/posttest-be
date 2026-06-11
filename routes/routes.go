@@ -41,6 +41,7 @@ func New() *echo.Echo {
 	e.POST("/d/web/google", authH.GoogleSignInWeb)
 	e.GET("/picture/*", multipleH.GetPicture)
 	e.GET("/picture/*", multiselectH.GetPicture)
+	e.POST("/d/logout", authH.Signout)
 
 	multiple := e.Group("/d", middlewares.AuthorizeJWT(JWT))
 	{
@@ -57,6 +58,8 @@ func New() *echo.Echo {
 	auth := e.Group("/d", middlewares.ApiKeyMiddleware)
 	{
 		auth.POST("/signin", authH.Signin)
+		auth.POST("/refresh", authH.RefreshToken)
+
 	}
 
 	return e
