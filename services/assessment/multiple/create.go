@@ -1,10 +1,10 @@
 package multiple
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
-	"net/http"
+	"io"
+	"mime/multipart"
 	"os"
 	"path/filepath"
 	dto "posttest-be/dto/assessment/multiple"
@@ -14,27 +14,23 @@ import (
 	util "github.com/srv-api/util/s"
 )
 
-func (s *multipleService) Create(req dto.MultipleRequest) (dto.MultipleResponse, error) {
-	// Proses base64 image jika ada
-	var imageURL string
-	var err error
-	if req.ImageBase64 != "" {
-		imageURL, err = saveBase64Image(req.ImageBase64, req.ImageFilename, req.ID)
-		if err != nil {
-			return dto.MultipleResponse{}, fmt.Errorf("failed to save image: %w", err)
-		}
-	}
+const (
+	maxUploadSize = 10 << 20 // 10MB per file
+	uploadDir     = "uploads/multiple"
+)
 
+func (s *multipleService) Create(req dto.MultipleRequest) (dto.MultipleResponse, error) {
 	create := dto.MultipleRequest{
 		ID:              util.GenerateRandomString(),
 		QuestionText:    req.QuestionText,
 		UserID:          req.UserID,
+		DetailID:        req.DetailID,
 		CreatedBy:       req.CreatedBy,
 		QuestionType:    req.QuestionType,
 		AnswerOptions:   req.AnswerOptions,
 		Explanation:     req.Explanation,
 		PlaceholderText: req.PlaceholderText,
-		ImageURL:        imageURL,
+		ImageURL:        req.ImageURL,
 	}
 
 	if create.QuestionType == "" {
@@ -86,27 +82,13 @@ func (s *multipleService) CreateBatch(reqs []dto.MultipleRequest) (dto.MultipleB
 		// Generate ID untuk setiap pertanyaan
 		req.ID = util.GenerateRandomString()
 
-		// Set nilai default jika kosong
+		// Set nilai default
 		if req.QuestionType == "" {
 			req.QuestionType = "multiple_choice"
 		}
 
-		// Proses base64 image jika ada
-		var imageURL string
-		var err error
-		if req.ImageBase64 != "" {
-			imageURL, err = saveBase64Image(req.ImageBase64, req.ImageFilename, req.ID)
-			if err != nil {
-				results = append(results, dto.MultipleBatchItemResponse{
-					Index:        i,
-					Success:      false,
-					QuestionText: req.QuestionText,
-					Error:        fmt.Sprintf("failed to save image: %v", err),
-				})
-				continue
-			}
-		}
-		req.ImageURL = imageURL
+		// Image sudah diproses di handler, langsung gunakan ImageURL
+		// Tidak ada validasi khusus untuk image karena optional
 
 		preparedReqs = append(preparedReqs, req)
 	}
@@ -165,6 +147,7 @@ func (s *multipleService) GetByID(id string) (*dto.MultipleResponse, error) {
 	return &dto.MultipleResponse{
 		ID:              question.ID,
 		UserID:          question.UserID,
+		DetailID:        question.DetailID,
 		CreatedBy:       question.CreatedBy,
 		QuestionType:    question.QuestionType,
 		QuestionText:    question.QuestionText,
@@ -186,6 +169,7 @@ func (s *multipleService) GetByUserID(userID string) ([]dto.MultipleResponse, er
 		responses = append(responses, dto.MultipleResponse{
 			ID:              q.ID,
 			UserID:          q.UserID,
+			DetailID:        q.DetailID,
 			CreatedBy:       q.CreatedBy,
 			QuestionType:    q.QuestionType,
 			QuestionText:    q.QuestionText,
@@ -209,6 +193,7 @@ func (s *multipleService) GetByDetailID(detailID string) ([]dto.MultipleResponse
 		responses = append(responses, dto.MultipleResponse{
 			ID:              q.ID,
 			UserID:          q.UserID,
+			DetailID:        q.DetailID,
 			CreatedBy:       q.CreatedBy,
 			QuestionType:    q.QuestionType,
 			QuestionText:    q.QuestionText,
@@ -222,14 +207,6 @@ func (s *multipleService) GetByDetailID(detailID string) ([]dto.MultipleResponse
 }
 
 func (s *multipleService) Update(id string, req dto.MultipleUpdateRequest) error {
-	// Proses base64 image jika ada
-	if req.ImageBase64 != "" {
-		imageURL, err := saveBase64Image(req.ImageBase64, req.ImageFilename, id)
-		if err != nil {
-			return fmt.Errorf("failed to save image: %w", err)
-		}
-		req.ImageURL = imageURL
-	}
 	return s.Repo.Update(id, req)
 }
 
@@ -237,60 +214,76 @@ func (s *multipleService) Delete(id string) error {
 	return s.Repo.Delete(id)
 }
 
-// saveBase64Image menyimpan image base64 ke file
-func saveBase64Image(base64Str, filename, questionID string) (string, error) {
-	// Remove data:image/png;base64, prefix if exists
-	parts := strings.Split(base64Str, ",")
-	if len(parts) > 1 {
-		base64Str = parts[1]
-	}
-
-	// Decode base64
-	imageData, err := base64.StdEncoding.DecodeString(base64Str)
-	if err != nil {
-		return "", fmt.Errorf("failed to decode base64: %w", err)
-	}
-
-	// Detect MIME type
-	mimeType := http.DetectContentType(imageData)
-	var ext string
-	switch mimeType {
-	case "image/jpeg":
-		ext = ".jpg"
-	case "image/png":
-		ext = ".png"
-	case "image/gif":
-		ext = ".gif"
-	case "image/webp":
-		ext = ".webp"
-	default:
-		ext = ".jpg"
-	}
-
+// UploadFile upload file ke server
+func UploadFile(file *multipart.FileHeader, questionID string) (string, error) {
 	// Buat direktori jika belum ada
-	uploadDir := "uploads/multiple"
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
 		return "", fmt.Errorf("failed to create upload directory: %w", err)
 	}
 
 	// Generate unique filename
 	timestamp := time.Now().UnixNano()
-	var finalFilename string
-	if filename != "" {
-		// Gunakan filename asli tapi tambahkan timestamp dan questionID
-		nameWithoutExt := strings.TrimSuffix(filename, filepath.Ext(filename))
-		finalFilename = fmt.Sprintf("%s_%s_%d%s", questionID, nameWithoutExt, timestamp, ext)
-	} else {
-		finalFilename = fmt.Sprintf("%s_%d%s", questionID, timestamp, ext)
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	filename := fmt.Sprintf("%s_%d%s", questionID, timestamp, ext)
+	filePath := filepath.Join(uploadDir, filename)
+
+	// Buka source file
+	src, err := file.Open()
+	if err != nil {
+		return "", fmt.Errorf("failed to open uploaded file: %w", err)
 	}
+	defer src.Close()
 
-	filePath := filepath.Join(uploadDir, finalFilename)
+	// Buat destination file
+	dst, err := os.Create(filePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to create destination file: %w", err)
+	}
+	defer dst.Close()
 
-	// Save file
-	if err := os.WriteFile(filePath, imageData, 0644); err != nil {
-		return "", fmt.Errorf("failed to save image: %w", err)
+	// Copy file
+	if _, err = io.Copy(dst, src); err != nil {
+		return "", fmt.Errorf("failed to save file: %w", err)
 	}
 
 	imageURL := "/" + filePath
 	return imageURL, nil
+}
+
+// ValidateImageFile memvalidasi file gambar
+func ValidateImageFile(file *multipart.FileHeader) error {
+	// Cek ekstensi file
+	ext := strings.ToLower(filepath.Ext(file.Filename))
+	allowedExt := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+		".gif":  true,
+		".webp": true,
+	}
+
+	if !allowedExt[ext] {
+		return fmt.Errorf("file type not allowed. Allowed: jpg, jpeg, png, gif, webp")
+	}
+
+	// Cek ukuran file
+	if file.Size > maxUploadSize {
+		return fmt.Errorf("file too large. Max size: 10MB")
+	}
+
+	// Buka file untuk validasi konten
+	src, err := file.Open()
+	if err != nil {
+		return fmt.Errorf("failed to open file")
+	}
+	defer src.Close()
+
+	// Baca header file untuk deteksi tipe MIME
+	header := make([]byte, 512)
+	_, err = src.Read(header)
+	if err != nil && err != io.EOF {
+		return fmt.Errorf("failed to read file header")
+	}
+
+	return nil
 }

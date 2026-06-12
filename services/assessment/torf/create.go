@@ -11,12 +11,14 @@ func (s *multipleService) Create(req dto.MultipleRequest) (dto.MultipleResponse,
 		ID:              util.GenerateRandomString(),
 		QuestionText:    req.QuestionText,
 		UserID:          req.UserID,
+		DetailID:        req.DetailID,
 		CreatedBy:       req.CreatedBy,
 		QuestionType:    req.QuestionType,
 		AnswerOptions:   req.AnswerOptions,
 		Explanation:     req.Explanation,
 		PlaceholderText: req.PlaceholderText,
 		ImageURL:        req.ImageURL,
+		Image:           req.Image,
 	}
 
 	created, err := s.Repo.Create(create)
@@ -27,6 +29,7 @@ func (s *multipleService) Create(req dto.MultipleRequest) (dto.MultipleResponse,
 	response := dto.MultipleResponse{
 		ID:              created.ID,
 		UserID:          created.UserID,
+		DetailID:        created.DetailID,
 		CreatedBy:       created.CreatedBy,
 		QuestionType:    created.QuestionType,
 		QuestionText:    created.QuestionText,

@@ -1,22 +1,26 @@
 package multiple
 
+import "mime/multipart"
+
 type MultipleRequest struct {
-	ID              string   `json:"id"`
-	UserID          string   `json:"user_id"`
-	CreatedBy       string   `json:"created_by"`
-	QuestionType    string   `json:"question_type"`
-	QuestionText    string   `json:"question_text"`
-	AnswerOptions   []string `json:"answer_options"`
-	Explanation     string   `json:"explanation"`
-	PlaceholderText string   `json:"placeholder_text"`
-	ImageBase64     string   `json:"image_base64"`   // Base64 encoded image (optional)
-	ImageFilename   string   `json:"image_filename"` // Original filename (optional)
-	ImageURL        string   `json:"image_url"`      // Will be set after processing
+	ID              string                `form:"id" json:"id"`
+	UserID          string                `form:"user_id" json:"user_id"`
+	DetailID        string                `form:"detail_id" json:"detail_id"`
+	CreatedBy       string                `form:"created_by" json:"created_by"`
+	QuestionType    string                `form:"question_type" json:"question_type"`
+	QuestionText    string                `form:"question_text" json:"question_text"`
+	AnswerOptions   []string              `form:"answer_options" json:"answer_options"`
+	Explanation     string                `form:"explanation" json:"explanation"`
+	PlaceholderText string                `form:"placeholder_text" json:"placeholder_text"`
+	ImageURL        string                `form:"image_url" json:"image_url"`
+	Image           *multipart.FileHeader `form:"image" json:"-"`
+	ImageIndex      int                   `form:"image_index" json:"image_index"` // -1 = no image, 0,1,2 = file index
 }
 
 type MultipleResponse struct {
 	ID              string   `json:"id"`
 	UserID          string   `json:"user_id"`
+	DetailID        string   `json:"detail_id"`
 	CreatedBy       string   `json:"created_by"`
 	QuestionType    string   `json:"question_type"`
 	QuestionText    string   `json:"question_text"`
@@ -29,13 +33,12 @@ type MultipleResponse struct {
 }
 
 type MultipleUpdateRequest struct {
-	ID              string   `json:"id"`
-	QuestionType    string   `json:"question_type"`
-	QuestionText    string   `json:"question_text"`
-	AnswerOptions   []string `json:"answer_options"`
-	Explanation     string   `json:"explanation"`
-	PlaceholderText string   `json:"placeholder_text"`
-	ImageBase64     string   `json:"image_base64"`
-	ImageFilename   string   `json:"image_filename"`
-	ImageURL        string   `json:"image_url"`
+	ID              string                `form:"id" json:"id"`
+	QuestionType    string                `form:"question_type" json:"question_type"`
+	QuestionText    string                `form:"question_text" json:"question_text"`
+	AnswerOptions   []string              `form:"answer_options" json:"answer_options"`
+	Explanation     string                `form:"explanation" json:"explanation"`
+	PlaceholderText string                `form:"placeholder_text" json:"placeholder_text"`
+	ImageURL        string                `form:"image_url" json:"image_url"`
+	Image           *multipart.FileHeader `form:"image" json:"-"`
 }
