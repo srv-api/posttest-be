@@ -1,31 +1,15 @@
 package multiple
 
 import (
-	"fmt"
-	"io"
-	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
 	dto "posttest-be/dto/assessment/multiple"
-	"strings"
-	"time"
 
 	"github.com/labstack/echo/v4"
-	util "github.com/srv-api/util/s"
-)
-
-const (
-	maxUploadSize = 5 << 20
-	uploadDir     = "uploads/multiple"
 )
 
 func (h *domainHandler) Create(c echo.Context) error {
-	c.Request().ParseMultipartForm(maxUploadSize)
-
 	var req dto.MultipleRequest
 
-	// Bind form data
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(400, map[string]interface{}{
 			"status":  "error",
@@ -37,44 +21,17 @@ func (h *domainHandler) Create(c echo.Context) error {
 	userID := c.Get("UserId").(string)
 	req.UserID = userID
 
-	detailId := c.Get("DetailId").(string)
-	req.DetailID = detailId
+	detailID := c.Get("DetailId").(string)
+	req.DetailID = detailID
 
 	createdBy := c.Get("CreatedBy").(string)
 	req.CreatedBy = createdBy
 
-	// Handle file upload
-	var imageURL string
-	if req.Image != nil {
-		// Validasi file
-		if err := validateImageFile(req.Image); err != nil {
-			return c.JSON(400, map[string]interface{}{
-				"status":  "error",
-				"message": err.Error(),
-			})
-		}
-
-		// Upload file
-		url, err := uploadFile(req.Image)
-		if err != nil {
-			return c.JSON(500, map[string]interface{}{
-				"status":  "error",
-				"message": "Failed to upload image",
-				"error":   err.Error(),
-			})
-		}
-		imageURL = url
-	}
-
-	// Set image URL ke request
-	req.ImageURL = imageURL
-
-	// Panggil service
 	multiple, err := h.serviceMultiple.Create(req)
 	if err != nil {
 		return c.JSON(500, map[string]interface{}{
 			"status":  "error",
-			"message": "Failed to create multiple",
+			"message": "Failed to create question",
 			"error":   err.Error(),
 		})
 	}
@@ -85,87 +42,167 @@ func (h *domainHandler) Create(c echo.Context) error {
 	})
 }
 
-// Validasi file gambar
-func validateImageFile(file *multipart.FileHeader) error {
-	// Cek ekstensi file
-	ext := strings.ToLower(filepath.Ext(file.Filename))
-	allowedExt := map[string]bool{
-		".jpg":  true,
-		".jpeg": true,
-		".png":  true,
-		".gif":  true,
-		".webp": true,
+// CreateBatch creates multiple questions with base64 images
+func (h *domainHandler) CreateBatch(c echo.Context) error {
+	var batchReq dto.MultipleBatchRequest
+
+	// Bind JSON body
+	if err := c.Bind(&batchReq); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "Invalid request body",
+			"error":   err.Error(),
+		})
 	}
 
-	if !allowedExt[ext] {
-		return fmt.Errorf("file type not allowed. Allowed: jpg, jpeg, png, gif, webp")
+	// Validasi minimal 1 pertanyaan
+	if len(batchReq.Questions) == 0 {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "At least one question is required",
+		})
 	}
 
-	// Cek ukuran file (max 5MB sudah di-set di form parsing)
-	if file.Size > maxUploadSize {
-		return fmt.Errorf("file too large. Max size: 5MB")
+	if len(batchReq.Questions) > 100 {
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":  "error",
+			"message": "Maximum 100 questions per batch",
+		})
 	}
 
-	// Buka file untuk validasi konten
-	src, err := file.Open()
+	// Set user context untuk semua pertanyaan
+	userID := c.Get("UserId").(string)
+	detailID := c.Get("DetailId").(string)
+	createdBy := c.Get("CreatedBy").(string)
+
+	for i := range batchReq.Questions {
+		batchReq.Questions[i].UserID = userID
+		batchReq.Questions[i].DetailID = detailID
+		batchReq.Questions[i].CreatedBy = createdBy
+	}
+
+	// Panggil service batch
+	batchResponse, err := h.serviceMultiple.CreateBatch(batchReq.Questions)
 	if err != nil {
-		return fmt.Errorf("failed to open file")
-	}
-	defer src.Close()
-
-	// Baca header file untuk deteksi tipe MIME (5 bytes cukup)
-	header := make([]byte, 512)
-	_, err = src.Read(header)
-	if err != nil && err != io.EOF {
-		return fmt.Errorf("failed to read file header")
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status":  "error",
+			"message": "Failed to create multiple questions",
+			"error":   err.Error(),
+		})
 	}
 
-	// Reset file pointer
-	src.Seek(0, 0)
-
-	// Deteksi MIME type
-	mimeType := http.DetectContentType(header)
-	if !strings.HasPrefix(mimeType, "image/") {
-		return fmt.Errorf("file is not an image")
-	}
-
-	return nil
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"status": "success",
+		"data":   batchResponse,
+	})
 }
 
-// Upload file ke server
-func uploadFile(file *multipart.FileHeader) (string, error) {
-	// Buat direktori jika belum ada
-	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-		return "", fmt.Errorf("failed to create upload directory: %w", err)
+// GetByID get single question by ID
+func (h *domainHandler) GetByID(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return c.JSON(400, map[string]interface{}{
+			"status":  "error",
+			"message": "ID is required",
+		})
 	}
 
-	// Generate unique filename
-	timestamp := time.Now().UnixNano()
-	ext := filepath.Ext(file.Filename)
-	filename := fmt.Sprintf("%d_%s%s", timestamp, util.GenerateRandomString(), ext)
-	filePath := filepath.Join(uploadDir, filename)
-
-	// Buka source file
-	src, err := file.Open()
+	question, err := h.serviceMultiple.GetByID(id)
 	if err != nil {
-		return "", fmt.Errorf("failed to open uploaded file: %w", err)
+		return c.JSON(404, map[string]interface{}{
+			"status":  "error",
+			"message": "Question not found",
+			"error":   err.Error(),
+		})
 	}
-	defer src.Close()
 
-	// Buat destination file
-	dst, err := os.Create(filePath)
+	return c.JSON(200, map[string]interface{}{
+		"status": "success",
+		"data":   question,
+	})
+}
+
+// GetByDetailID get all questions by detail ID
+func (h *domainHandler) GetByDetailID(c echo.Context) error {
+	detailID := c.Param("detail_id")
+	if detailID == "" {
+		return c.JSON(400, map[string]interface{}{
+			"status":  "error",
+			"message": "Detail ID is required",
+		})
+	}
+
+	questions, err := h.serviceMultiple.GetByDetailID(detailID)
 	if err != nil {
-		return "", fmt.Errorf("failed to create destination file: %w", err)
-	}
-	defer dst.Close()
-
-	// Copy file
-	if _, err = io.Copy(dst, src); err != nil {
-		return "", fmt.Errorf("failed to save file: %w", err)
+		return c.JSON(500, map[string]interface{}{
+			"status":  "error",
+			"message": "Failed to get questions",
+			"error":   err.Error(),
+		})
 	}
 
-	// Return URL path (bisa disesuaikan dengan base URL aplikasi)
-	imageURL := "/" + filePath // atau menggunakan base URL: "https://yourdomain.com/" + filePath
+	return c.JSON(200, map[string]interface{}{
+		"status": "success",
+		"data":   questions,
+	})
+}
 
-	return imageURL, nil
+// Update update existing question
+func (h *domainHandler) Update(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return c.JSON(400, map[string]interface{}{
+			"status":  "error",
+			"message": "ID is required",
+		})
+	}
+
+	var req dto.MultipleUpdateRequest
+
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(400, map[string]interface{}{
+			"status":  "error",
+			"message": "Invalid request body",
+			"error":   err.Error(),
+		})
+	}
+
+	req.ID = id
+
+	if err := h.serviceMultiple.Update(id, req); err != nil {
+		return c.JSON(500, map[string]interface{}{
+			"status":  "error",
+			"message": "Failed to update question",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.JSON(200, map[string]interface{}{
+		"status":  "success",
+		"message": "Question updated successfully",
+	})
+}
+
+// Delete delete question
+func (h *domainHandler) Delete(c echo.Context) error {
+	id := c.Param("id")
+	if id == "" {
+		return c.JSON(400, map[string]interface{}{
+			"status":  "error",
+			"message": "ID is required",
+		})
+	}
+
+	if err := h.serviceMultiple.Delete(id); err != nil {
+		return c.JSON(500, map[string]interface{}{
+			"status":  "error",
+			"message": "Failed to delete question",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.JSON(200, map[string]interface{}{
+		"status":  "success",
+		"message": "Question deleted successfully",
+	})
 }

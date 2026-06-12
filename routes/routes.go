@@ -45,8 +45,15 @@ func New() *echo.Echo {
 
 	multiple := e.Group("/d", middlewares.AuthorizeJWT(JWT))
 	{
-		multiple.POST("/create/multiple", multipleH.Create)
+		// multiple.POST("/create/multiple", multipleH.Create)
 		multiple.GET("/get/multiple", multipleH.Get)
+		multiple.POST("/create", multipleH.Create)
+		multiple.POST("/batch", multipleH.CreateBatch) // Endpoint batch JSON murni
+		multiple.GET("/:id", multipleH.GetByID)
+		multiple.GET("/detail/:detail_id", multipleH.GetByDetailID)
+		multiple.PUT("/:id", multipleH.Update)
+		multiple.DELETE("/:id", multipleH.Delete)
+
 	}
 
 	multiselect := e.Group("/d", middlewares.AuthorizeJWT(JWT))

@@ -8,9 +8,15 @@ import (
 )
 
 type MultipleService interface {
-	Create(req dto.MultipleRequest) (dto.MultipleResponse, error)
 	GetPicture(req dto.MultipleRequest) (*dto.MultipleResponse, error)
 	Get(req dto.AccessRoomRequest) ([]dto.MultipleResponse, error)
+	Create(req dto.MultipleRequest) (dto.MultipleResponse, error)
+	CreateBatch(reqs []dto.MultipleRequest) (dto.MultipleBatchResponse, error)
+	GetByID(id string) (*dto.MultipleResponse, error)
+	GetByUserID(userID string) ([]dto.MultipleResponse, error)
+	GetByDetailID(detailID string) ([]dto.MultipleResponse, error)
+	Update(id string, req dto.MultipleUpdateRequest) error
+	Delete(id string) error
 }
 
 type multipleService struct {

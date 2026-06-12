@@ -18,7 +18,6 @@ func (s *multipleService) Create(req dto.MultipleRequest) (dto.MultipleResponse,
 		Explanation:     req.Explanation,
 		PlaceholderText: req.PlaceholderText,
 		ImageURL:        req.ImageURL,
-		Image:           req.Image,
 	}
 
 	created, err := s.Repo.Create(create)
