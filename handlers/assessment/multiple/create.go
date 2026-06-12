@@ -21,9 +21,6 @@ func (h *domainHandler) Create(c echo.Context) error {
 	userID := c.Get("UserId").(string)
 	req.UserID = userID
 
-	detailID := c.Get("DetailId").(string)
-	req.DetailID = detailID
-
 	createdBy := c.Get("CreatedBy").(string)
 	req.CreatedBy = createdBy
 
@@ -72,12 +69,10 @@ func (h *domainHandler) CreateBatch(c echo.Context) error {
 
 	// Set user context untuk semua pertanyaan
 	userID := c.Get("UserId").(string)
-	detailID := c.Get("DetailId").(string)
 	createdBy := c.Get("CreatedBy").(string)
 
 	for i := range batchReq.Questions {
 		batchReq.Questions[i].UserID = userID
-		batchReq.Questions[i].DetailID = detailID
 		batchReq.Questions[i].CreatedBy = createdBy
 	}
 

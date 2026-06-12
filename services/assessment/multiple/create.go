@@ -29,7 +29,6 @@ func (s *multipleService) Create(req dto.MultipleRequest) (dto.MultipleResponse,
 		ID:              util.GenerateRandomString(),
 		QuestionText:    req.QuestionText,
 		UserID:          req.UserID,
-		DetailID:        req.DetailID,
 		CreatedBy:       req.CreatedBy,
 		QuestionType:    req.QuestionType,
 		AnswerOptions:   req.AnswerOptions,
@@ -166,7 +165,6 @@ func (s *multipleService) GetByID(id string) (*dto.MultipleResponse, error) {
 	return &dto.MultipleResponse{
 		ID:              question.ID,
 		UserID:          question.UserID,
-		DetailID:        question.DetailID,
 		CreatedBy:       question.CreatedBy,
 		QuestionType:    question.QuestionType,
 		QuestionText:    question.QuestionText,
@@ -188,7 +186,6 @@ func (s *multipleService) GetByUserID(userID string) ([]dto.MultipleResponse, er
 		responses = append(responses, dto.MultipleResponse{
 			ID:              q.ID,
 			UserID:          q.UserID,
-			DetailID:        q.DetailID,
 			CreatedBy:       q.CreatedBy,
 			QuestionType:    q.QuestionType,
 			QuestionText:    q.QuestionText,
@@ -212,7 +209,6 @@ func (s *multipleService) GetByDetailID(detailID string) ([]dto.MultipleResponse
 		responses = append(responses, dto.MultipleResponse{
 			ID:              q.ID,
 			UserID:          q.UserID,
-			DetailID:        q.DetailID,
 			CreatedBy:       q.CreatedBy,
 			QuestionType:    q.QuestionType,
 			QuestionText:    q.QuestionText,

@@ -3,7 +3,6 @@ package multiple
 type MultipleRequest struct {
 	ID              string   `json:"id"`
 	UserID          string   `json:"user_id"`
-	DetailID        string   `json:"detail_id"`
 	CreatedBy       string   `json:"created_by"`
 	QuestionType    string   `json:"question_type"`
 	QuestionText    string   `json:"question_text"`
@@ -18,7 +17,6 @@ type MultipleRequest struct {
 type MultipleResponse struct {
 	ID              string   `json:"id"`
 	UserID          string   `json:"user_id"`
-	DetailID        string   `json:"detail_id"`
 	CreatedBy       string   `json:"created_by"`
 	QuestionType    string   `json:"question_type"`
 	QuestionText    string   `json:"question_text"`
