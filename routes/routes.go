@@ -53,7 +53,6 @@ func New() *echo.Echo {
 		multiple.GET("/detail/:detail_id", multipleH.GetByDetailID)
 		multiple.PUT("/:id", multipleH.Update)
 		multiple.DELETE("/:id", multipleH.Delete)
-
 	}
 
 	multiselect := e.Group("/d", middlewares.AuthorizeJWT(JWT))
