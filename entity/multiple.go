@@ -5,9 +5,8 @@ import (
 )
 
 type MultipleQuestion struct {
-	ID              string   `gorm:"primaryKey;type:uuid"`
+	ID              string   `gorm:"primary_key;type:varchar(39)" json:"id"`
 	UserID          string   `gorm:"type:uuid;not null;index"`
-	DetailID        string   `gorm:"type:varchar(100);not null"`
 	CreatedBy       string   `gorm:"type:varchar(100);not null"`
 	QuestionType    string   `form:"question_type" json:"question_type"`
 	QuestionText    string   `gorm:"type:text;not null"`
