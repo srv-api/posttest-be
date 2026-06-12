@@ -12,7 +12,6 @@ func (r *multipleRepository) Create(req dto.MultipleRequest) (dto.MultipleRespon
 		ID:              req.ID,
 		QuestionText:    req.QuestionText,
 		UserID:          req.UserID,
-		DetailID:        req.DetailID,
 		CreatedBy:       req.CreatedBy,
 		QuestionType:    req.QuestionType,
 		AnswerOptions:   req.AnswerOptions,
@@ -29,7 +28,6 @@ func (r *multipleRepository) Create(req dto.MultipleRequest) (dto.MultipleRespon
 		ID:            create.ID,
 		UserID:        create.UserID,
 		AnswerOptions: create.AnswerOptions,
-		DetailID:      create.DetailID,
 		CreatedBy:     create.CreatedBy,
 		ImageURL:      create.ImageURL,
 	}
