@@ -48,7 +48,7 @@ func New() *echo.Echo {
 		// multiple.POST("/create/multiple", multipleH.Create)
 		multiple.GET("/get/multiple", multipleH.Get)
 		multiple.POST("/create", multipleH.Create)
-		multiple.POST("/batch", multipleH.CreateBatch) // Endpoint batch utama
+		multiple.POST("/batch", multipleH.CreateBatch)
 		multiple.GET("/:id", multipleH.GetByID)
 		multiple.GET("/detail/:detail_id", multipleH.GetByDetailID)
 		multiple.PUT("/:id", multipleH.Update)

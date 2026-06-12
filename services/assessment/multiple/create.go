@@ -61,7 +61,7 @@ func (s *multipleService) CreateBatch(reqs []dto.MultipleRequest) (dto.MultipleB
 		// Validasi required field
 		if req.QuestionText == "" {
 			results = append(results, dto.MultipleBatchItemResponse{
-				Index:        i,
+				Index:        i, // ← Pastikan index tersimpan
 				Success:      false,
 				QuestionText: req.QuestionText,
 				Error:        "question_text is required",
@@ -71,7 +71,7 @@ func (s *multipleService) CreateBatch(reqs []dto.MultipleRequest) (dto.MultipleB
 
 		if len(req.AnswerOptions) == 0 {
 			results = append(results, dto.MultipleBatchItemResponse{
-				Index:        i,
+				Index:        i, // ← Pastikan index tersimpan
 				Success:      false,
 				QuestionText: req.QuestionText,
 				Error:        "answer_options is required",
@@ -86,9 +86,6 @@ func (s *multipleService) CreateBatch(reqs []dto.MultipleRequest) (dto.MultipleB
 		if req.QuestionType == "" {
 			req.QuestionType = "multiple_choice"
 		}
-
-		// Image sudah diproses di handler, langsung gunakan ImageURL
-		// Tidak ada validasi khusus untuk image karena optional
 
 		preparedReqs = append(preparedReqs, req)
 	}
@@ -114,14 +111,21 @@ func (s *multipleService) CreateBatch(reqs []dto.MultipleRequest) (dto.MultipleB
 		Results:      []dto.MultipleBatchItemResponse{},
 	}
 
-	// Tambahkan success results
-	for _, success := range successes {
-		batchResponse.Results = append(batchResponse.Results, dto.MultipleBatchItemResponse{
-			Success:      true,
-			QuestionID:   success.ID,
-			QuestionText: success.QuestionText,
-			Data:         &success,
-		})
+	// Tambahkan success results dengan index yang benar
+	// Kita perlu mapping success ke index asli
+	successIndex := 0
+	for i, req := range reqs {
+		// Cari apakah req ini berhasil disimpan
+		if successIndex < len(successes) && successes[successIndex].QuestionText == req.QuestionText {
+			batchResponse.Results = append(batchResponse.Results, dto.MultipleBatchItemResponse{
+				Index:        i, // ← Index asli dari request
+				Success:      true,
+				QuestionID:   successes[successIndex].ID,
+				QuestionText: successes[successIndex].QuestionText,
+				Data:         &successes[successIndex],
+			})
+			successIndex++
+		}
 	}
 
 	// Tambahkan error results dari repository
@@ -132,7 +136,7 @@ func (s *multipleService) CreateBatch(reqs []dto.MultipleRequest) (dto.MultipleB
 		})
 	}
 
-	// Tambahkan validation errors
+	// Tambahkan validation errors (sudah punya index)
 	batchResponse.Results = append(batchResponse.Results, results...)
 
 	return batchResponse, nil
