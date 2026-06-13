@@ -56,7 +56,6 @@ func InitDB() *gorm.DB {
 	db.AutoMigrate(
 		&entity.AccessDoor{},
 		&entity.UserVerified{},
-		&entity.LibraryRequest{},
 		&entity.MultipleQuestion{},
 		&entity.MultiselectQuestion{},
 		&entity.TorfQuestion{},
