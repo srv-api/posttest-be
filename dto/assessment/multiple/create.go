@@ -6,6 +6,7 @@ type MultipleRequest struct {
 	ID              string                `form:"id" json:"id"`
 	UserID          string                `form:"user_id" json:"user_id"`
 	DetailID        string                `form:"detail_id" json:"detail_id"`
+	Status          string                `form:"status" json:"status"`
 	CreatedBy       string                `form:"created_by" json:"created_by"`
 	QuestionType    string                `form:"question_type" json:"question_type"`
 	QuestionText    string                `form:"question_text" json:"question_text"`
@@ -20,6 +21,7 @@ type MultipleRequest struct {
 type MultipleResponse struct {
 	ID              string   `json:"id"`
 	UserID          string   `json:"user_id"`
+	Status          string   `form:"status" json:"status"`
 	DetailID        string   `json:"detail_id"`
 	CreatedBy       string   `json:"created_by"`
 	QuestionType    string   `json:"question_type"`

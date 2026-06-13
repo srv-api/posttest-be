@@ -37,6 +37,7 @@ type MultipleQuestion struct {
 	ID              string      `gorm:"primary_key;type:varchar(39)" json:"id"`
 	UserID          string      `gorm:"type:varchar(36);index" json:"user_id"`
 	DetailID        string      `gorm:"type:varchar(36);index" json:"detail_id"`
+	Status          string      `gorm:"type:varchar(50)" json:"status"`
 	CreatedBy       string      `gorm:"type:varchar(100);not null" json:"created_by"`
 	QuestionType    string      `gorm:"type:varchar(50)" json:"question_type"`
 	QuestionText    string      `gorm:"type:text;not null" json:"question_text"`
