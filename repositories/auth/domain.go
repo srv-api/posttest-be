@@ -3,7 +3,7 @@ package auth
 import (
 	"sync"
 
-	dto "posttest-be/dto"
+	dto "posttest-be/dto/auth"
 	"posttest-be/entity"
 
 	"gorm.io/gorm"

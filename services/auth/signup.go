@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	dto "posttest-be/dto"
+	dto "posttest-be/dto/auth"
 
 	util "github.com/srv-api/util/s"
 	res "github.com/srv-api/util/s/response"

@@ -2,7 +2,7 @@ package auth
 
 import (
 	"errors"
-	dto "posttest-be/dto"
+	dto "posttest-be/dto/auth"
 	"regexp"
 	"strings"
 	"time"

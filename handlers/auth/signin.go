@@ -1,7 +1,7 @@
 package auth
 
 import (
-	dto "posttest-be/dto"
+	dto "posttest-be/dto/auth"
 	"strings"
 
 	res "github.com/srv-api/util/s/response"

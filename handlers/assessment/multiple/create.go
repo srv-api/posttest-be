@@ -70,7 +70,6 @@ func (h *domainHandler) CreateBatch(c echo.Context) error {
 
 	// Set user context untuk semua pertanyaan
 	userID := c.Get("UserId").(string)
-	detailID := c.Get("DetailId").(string)
 	createdBy := c.Get("CreatedBy").(string)
 
 	// Proses setiap question
@@ -79,7 +78,6 @@ func (h *domainHandler) CreateBatch(c echo.Context) error {
 	for i, question := range batchReq.Questions {
 		// Set basic info
 		question.UserID = userID
-		question.DetailID = detailID
 		question.CreatedBy = createdBy
 
 		// Generate ID unik
@@ -153,9 +151,6 @@ func (h *domainHandler) Create(c echo.Context) error {
 	userID := c.Get("UserId").(string)
 	req.UserID = userID
 
-	detailID := c.Get("DetailId").(string)
-	req.DetailID = detailID
-
 	createdBy := c.Get("CreatedBy").(string)
 	req.CreatedBy = createdBy
 
@@ -224,15 +219,15 @@ func (h *domainHandler) GetByID(c echo.Context) error {
 
 // GetByDetailID get all questions by detail ID
 func (h *domainHandler) GetByDetailID(c echo.Context) error {
-	detailID := c.Param("detail_id")
-	if detailID == "" {
+	userID := c.Param("user_id")
+	if userID == "" {
 		return c.JSON(400, map[string]interface{}{
 			"status":  "error",
 			"message": "Detail ID is required",
 		})
 	}
 
-	questions, err := h.serviceMultiple.GetByDetailID(detailID)
+	questions, err := h.serviceMultiple.GetByDetailID(userID)
 	if err != nil {
 		return c.JSON(500, map[string]interface{}{
 			"status":  "error",

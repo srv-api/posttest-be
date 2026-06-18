@@ -3,7 +3,7 @@ package auth
 import (
 	"time"
 
-	dto "posttest-be/dto"
+	dto "posttest-be/dto/auth"
 
 	"github.com/srv-api/auth/entity"
 	entitymerchant "github.com/srv-api/detail/entity"

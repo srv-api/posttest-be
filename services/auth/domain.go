@@ -1,7 +1,7 @@
 package auth
 
 import (
-	dto "posttest-be/dto"
+	dto "posttest-be/dto/auth"
 	r "posttest-be/repositories/auth"
 
 	m "github.com/srv-api/middlewares/middlewares"

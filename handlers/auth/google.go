@@ -2,7 +2,7 @@ package auth
 
 import (
 	"net/http"
-	dto "posttest-be/dto"
+	dto "posttest-be/dto/auth"
 
 	"github.com/labstack/echo/v4"
 	util "github.com/srv-api/util/s"
