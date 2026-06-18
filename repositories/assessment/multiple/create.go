@@ -10,6 +10,7 @@ func (r *multipleRepository) Create(req multiple.MultipleRequest) (multiple.Mult
 		ID:              req.ID,
 		QuestionText:    req.QuestionText,
 		UserID:          req.UserID,
+		DetailID:        req.DetailID,
 		Link:            req.Link,
 		CreatedBy:       req.CreatedBy,
 		QuestionType:    req.QuestionType,
@@ -25,8 +26,9 @@ func (r *multipleRepository) Create(req multiple.MultipleRequest) (multiple.Mult
 
 	response := multiple.MultipleResponse{
 		ID:              create.ID,
-		Link:            create.Link,
 		UserID:          create.UserID,
+		DetailID:        create.DetailID,
+		Link:            create.Link,
 		QuestionType:    create.QuestionType,
 		QuestionText:    create.QuestionText,
 		AnswerOptions:   create.AnswerOptions,
@@ -53,9 +55,10 @@ func (r *multipleRepository) CreateBatch(reqs []multiple.MultipleRequest) ([]mul
 	for _, req := range reqs {
 		create := entity.MultipleQuestion{
 			ID:              req.ID,
-			Link:            req.Link,
 			QuestionText:    req.QuestionText,
 			UserID:          req.UserID,
+			DetailID:        req.DetailID,
+			Link:            req.Link,
 			CreatedBy:       req.CreatedBy,
 			QuestionType:    req.QuestionType,
 			AnswerOptions:   req.AnswerOptions,
@@ -72,6 +75,8 @@ func (r *multipleRepository) CreateBatch(reqs []multiple.MultipleRequest) ([]mul
 		response := multiple.MultipleResponse{
 			ID:              create.ID,
 			UserID:          create.UserID,
+			DetailID:        create.DetailID,
+			Link:            req.Link,
 			QuestionType:    create.QuestionType,
 			QuestionText:    create.QuestionText,
 			AnswerOptions:   create.AnswerOptions,

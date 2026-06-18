@@ -5,6 +5,7 @@ import "mime/multipart"
 type MultipleRequest struct {
 	ID              string                `form:"id" json:"id"`
 	UserID          string                `form:"user_id" json:"user_id"`
+	DetailID        string                `form:"detail_id" json:"detail_id"`
 	Link            string                `form:"link" json:"link"`
 	Status          string                `form:"status" json:"status"`
 	CreatedBy       string                `form:"created_by" json:"created_by"`
@@ -21,8 +22,9 @@ type MultipleRequest struct {
 type MultipleResponse struct {
 	ID              string   `json:"id"`
 	UserID          string   `json:"user_id"`
+	DetailID        string   `form:"detail_id"`
 	Status          string   `form:"status" json:"status"`
-	Link            string   `json:"link"`
+	Link            string   `form:"link"`
 	CreatedBy       string   `json:"created_by"`
 	QuestionType    string   `json:"question_type"`
 	QuestionText    string   `json:"question_text"`
@@ -36,7 +38,7 @@ type MultipleResponse struct {
 
 type MultipleUpdateRequest struct {
 	ID              string                `form:"id" json:"id"`
-	Link            string                `json:"link"`
+	Link            string                `form:"link"`
 	QuestionType    string                `form:"question_type" json:"question_type"`
 	QuestionText    string                `form:"question_text" json:"question_text"`
 	AnswerOptions   []string              `form:"answer_options" json:"answer_options"`
