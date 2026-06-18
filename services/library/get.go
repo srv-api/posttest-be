@@ -8,7 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (s *productService) Get(context echo.Context, req *dto.Pagination) dto.Response {
+func (s *libraryService) Get(context echo.Context, req *dto.Pagination) dto.Response {
 	if req.Page < 1 {
 		req.Page = 1
 	}

@@ -9,17 +9,17 @@ import (
 	r "posttest-be/repositories/library"
 )
 
-type ProductService interface {
+type LibraryService interface {
 	Get(context echo.Context, req *dto.Pagination) dto.Response
 }
 
-type productService struct {
+type libraryService struct {
 	Repo r.DomainRepository
 	jwt  m.JWTService
 }
 
-func NewProductService(Repo r.DomainRepository, jwtS m.JWTService) ProductService {
-	return &productService{
+func NewLibraryService(Repo r.DomainRepository, jwtS m.JWTService) LibraryService {
+	return &libraryService{
 		Repo: Repo,
 		jwt:  jwtS,
 	}

@@ -11,11 +11,11 @@ type DomainHandler interface {
 }
 
 type domainHandler struct {
-	serviceProduct s.ProductService
+	serviceLibrary s.LibraryService
 }
 
-func NewProductHandler(service s.ProductService) DomainHandler {
+func NewLibraryHandler(service s.LibraryService) DomainHandler {
 	return &domainHandler{
-		serviceProduct: service,
+		serviceLibrary: service,
 	}
 }

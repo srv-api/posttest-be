@@ -12,13 +12,13 @@ type DomainRepository interface {
 	Get(req *dto.Pagination) (RepositoryResult, int)
 }
 
-type productRepository struct {
+type libraryRepository struct {
 	DB *gorm.DB
 	mu sync.Mutex
 }
 
-func NewProductRepository(DB *gorm.DB) DomainRepository {
-	return &productRepository{
+func NewLibraryRepository(DB *gorm.DB) DomainRepository {
+	return &libraryRepository{
 		DB: DB,
 	}
 }

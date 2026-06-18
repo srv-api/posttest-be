@@ -14,6 +14,10 @@ import (
 	r_multiselect "posttest-be/repositories/assessment/multiselect"
 	s_multiselect "posttest-be/services/assessment/multiselect"
 
+	h_library "posttest-be/handlers/library"
+	r_library "posttest-be/repositories/library"
+	s_library "posttest-be/services/library"
+
 	"github.com/labstack/echo/v4"
 	"github.com/srv-api/middlewares/middlewares"
 )
@@ -33,6 +37,10 @@ var (
 	multiselectR = r_multiselect.NewMultiselectRepository(DB)
 	multiselectS = s_multiselect.NewMultiselectService(multiselectR, JWT)
 	multiselectH = h_multiselect.NewMultiselectHandler(multiselectS)
+
+	libraryR = r_library.NewLibraryRepository(DB)
+	libraryS = s_library.NewLibraryService(libraryR, JWT)
+	libraryH = h_library.NewLibraryHandler(libraryS)
 )
 
 func New() *echo.Echo {
@@ -42,6 +50,11 @@ func New() *echo.Echo {
 	e.GET("/picture/*", multipleH.GetPicture)
 	e.GET("/picture/*", multiselectH.GetPicture)
 	e.POST("/d/logout", authH.Signout)
+
+	library := e.Group("/d", middlewares.AuthorizeJWT(JWT))
+	{
+		library.GET("/get/library", multipleH.Get)
+	}
 
 	multiple := e.Group("/d", middlewares.AuthorizeJWT(JWT))
 	{
@@ -53,7 +66,6 @@ func New() *echo.Echo {
 		multiple.GET("/detail/:detail_id", multipleH.GetByDetailID)
 		multiple.PUT("/:id", multipleH.Update)
 		multiple.DELETE("/:id", multipleH.Delete)
-
 	}
 
 	multiselect := e.Group("/d", middlewares.AuthorizeJWT(JWT))

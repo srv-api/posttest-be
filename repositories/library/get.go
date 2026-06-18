@@ -10,8 +10,8 @@ import (
 	"posttest-be/helpers"
 )
 
-func (r *productRepository) Get(req *dto.Pagination) (RepositoryResult, int) {
-	var products []entity.MultipleQuestion
+func (r *libraryRepository) Get(req *dto.Pagination) (RepositoryResult, int) {
+	var librarys []entity.MultipleQuestion
 	var totalRows int64
 	totalPages, fromRow, toRow := 0, 0, 0
 	offset := (req.Page - 1) * req.Limit
@@ -41,21 +41,21 @@ func (r *productRepository) Get(req *dto.Pagination) (RepositoryResult, int) {
 		}
 	}
 
-	find = find.Find(&products)
+	find = find.Find(&librarys)
 
 	// Periksa jika ada error saat pengambilan data
 	if errFind := find.Error; errFind != nil {
 		return RepositoryResult{Error: errFind}, totalPages
 	}
 
-	req.Rows = products
+	req.Rows = librarys
 
 	// Hitung total data
 	if errCount := r.DB.Model(&entity.MultipleQuestion{}).Where("merchant_id = ?", req.UserID).Count(&totalRows).Error; errCount != nil {
 		return RepositoryResult{Error: errCount}, totalPages
 	}
-	for i := range products {
-		products[i].QuestionText = helpers.TruncateString(products[i].QuestionText, 28)
+	for i := range librarys {
+		librarys[i].QuestionText = helpers.TruncateString(librarys[i].QuestionText, 28)
 	}
 
 	// Pagination info
