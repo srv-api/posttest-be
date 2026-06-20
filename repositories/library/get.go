@@ -51,7 +51,7 @@ func (r *libraryRepository) Get(req *dto.Pagination) (RepositoryResult, int) {
 	req.Rows = librarys
 
 	// Hitung total data
-	if errCount := r.DB.Model(&entity.MultipleQuestion{}).Where("merchant_id = ?", req.UserID).Count(&totalRows).Error; errCount != nil {
+	if errCount := r.DB.Model(&entity.MultipleQuestion{}).Where("user_id = ?", req.UserID).Count(&totalRows).Error; errCount != nil {
 		return RepositoryResult{Error: errCount}, totalPages
 	}
 	for i := range librarys {
