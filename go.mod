@@ -5,6 +5,8 @@ go 1.25.1
 require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.15.0
+	github.com/srv-api/auth v0.0.0-20260420072756-e0ab5a243ce4
+	github.com/srv-api/detail v0.0.0-20260426214428-3c4a6934d5bd
 	github.com/srv-api/util v0.0.0-20260522142821-81e36a4fa69e
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gorm.io/driver/postgres v1.6.0
@@ -25,8 +27,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e // indirect
-	github.com/srv-api/auth v0.0.0-20260420072756-e0ab5a243ce4 // indirect
-	github.com/srv-api/detail v0.0.0-20260426214428-3c4a6934d5bd // indirect
 	github.com/streadway/amqp v1.1.0 // indirect
 	github.com/teris-io/shortid v0.0.0-20220617161101-71ec9f2aa569 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
