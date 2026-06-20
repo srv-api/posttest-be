@@ -17,7 +17,7 @@ func (r *libraryRepository) Get(req *dto.Pagination) (RepositoryResult, int) {
 	offset := (req.Page - 1) * req.Limit
 
 	find := r.DB.
-		// Where("merchant_id = ? AND status = ?", req.UserID, 1).
+		Where("user_id = ?", req.UserID).
 		Limit(req.Limit).
 		Offset(offset).
 		Order(req.Sort)
