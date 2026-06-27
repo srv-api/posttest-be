@@ -6,7 +6,6 @@ import (
 	dto "posttest-be/dto/auth"
 
 	"github.com/srv-api/auth/entity"
-	entitymerchant "github.com/srv-api/detail/entity"
 	util "github.com/srv-api/util/s"
 )
 
@@ -28,19 +27,6 @@ func (r *authRepository) Signup(req dto.SignupRequest) (dto.SignupResponse, erro
 		return dto.SignupResponse{}, err
 	}
 
-	merchant := entitymerchant.UserDetail{
-		ID:           user.DetailID,
-		UserID:       user.ID,
-		MinAge:       18,
-		MaxAge:       60,
-		Radius:       24,
-		GenderTarget: "both",
-	}
-
-	if err := r.DB.Save(&merchant).First(&merchant).Error; err != nil {
-		return dto.SignupResponse{}, err
-	}
-
 	verified := entity.UserVerified{
 		ID:        util.GenerateRandomString(),
 		UserID:    user.ID,
@@ -55,8 +41,6 @@ func (r *authRepository) Signup(req dto.SignupRequest) (dto.SignupResponse, erro
 	response := dto.SignupResponse{
 		ID:           user.ID,
 		FullName:     user.FullName,
-		Gender:       user.Gender,
-		Age:          user.Age,
 		Whatsapp:     user.Whatsapp,
 		Email:        user.Email,
 		Password:     user.Password,

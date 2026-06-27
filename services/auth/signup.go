@@ -29,11 +29,6 @@ func (u *authService) Signup(req dto.SignupRequest) (dto.SignupResponse, error) 
 
 	req.Whatsapp = FormatWhatsappNumber(req.Whatsapp)
 
-	age, err := calculateAge(req.BirthDate)
-	if err != nil {
-		return dto.SignupResponse{}, res.ErrorBuilder(&res.ErrorConstant.BadRequest, err)
-	}
-
 	// Encrypt the email
 	encryptedEmail, err := util.Encrypt(req.Email)
 	if err != nil {
@@ -63,8 +58,6 @@ func (u *authService) Signup(req dto.SignupRequest) (dto.SignupResponse, error) 
 		Otp:          GenerateRandomNumeric(4),
 		Whatsapp:     encryptedWhatsapp,
 		FullName:     req.FullName,
-		Gender:       req.Gender,
-		Age:          age,
 		Email:        encryptedEmail,
 		Password:     req.Password,
 		Token:        util.GenerateRandomString(),
